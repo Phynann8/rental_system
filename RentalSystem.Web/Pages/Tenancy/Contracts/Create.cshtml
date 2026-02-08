@@ -1,0 +1,64 @@
+@page
+@model RentalSystem.Web.Pages.Tenancy.Contracts.CreateModel
+@{
+    ViewData["Title"] = "New Contract";
+}
+
+<div class="container mt-4">
+    <h2>New Rental Contract</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <div class="mb-3">
+                    <label asp-for="Contract.TenantId" class="form-label">Tenant</label>
+                    <select asp-for="Contract.TenantId" class="form-select" asp-items="ViewBag.TenantId"></select>
+                    <span asp-validation-for="Contract.TenantId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Contract.RoomId" class="form-label">Room</label>
+                    <select asp-for="Contract.RoomId" class="form-select" asp-items="ViewBag.RoomId"></select>
+                    <span asp-validation-for="Contract.RoomId" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Contract.StartDate" class="form-label">Start Date</label>
+                        <input asp-for="Contract.StartDate" class="form-control" type="date" />
+                        <span asp-validation-for="Contract.StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Contract.EndDate" class="form-label">End Date</label>
+                        <input asp-for="Contract.EndDate" class="form-control" type="date" />
+                        <span asp-validation-for="Contract.EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Contract.RentPrice" class="form-label">Rent Price ($)</label>
+                    <input asp-for="Contract.RentPrice" class="form-control" />
+                    <span asp-validation-for="Contract.RentPrice" class="text-danger"></span>
+                    <div class="form-text">If left 0, allows manual override.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Contract.DepositAmount" class="form-label">Deposit Amount ($)</label>
+                    <input asp-for="Contract.DepositAmount" class="form-control" />
+                    <span asp-validation-for="Contract.DepositAmount" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Create Contract" class="btn btn-primary" />
+                    <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

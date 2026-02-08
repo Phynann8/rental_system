@@ -1,0 +1,216 @@
+@page
+@model RentalSystem.Web.Pages.Reports.IndexModel
+@{
+    ViewData["Title"] = "Financial Reports";
+}
+
+<div class="row align-items-end mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold mb-1">Financial & Operational Reports</h2>
+        <p class="text-muted mb-0">Monitor financial health and occupancy metrics across your properties.</p>
+    </div>
+    <div class="col-md-6 d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
+        <button class="btn btn-light border shadow-sm fw-medium">
+            <span class="material-symbols-outlined align-middle me-1" style="font-size: 18px;">picture_as_pdf</span>
+            Export PDF
+        </button>
+        <button class="btn btn-primary shadow-sm fw-medium">
+            <span class="material-symbols-outlined align-middle me-1" style="font-size: 18px;">table_view</span>
+            Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border mb-4 shadow-sm">
+    <div class="card-body py-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <label class="small text-muted fw-bold text-uppercase d-block mb-1">Date Range</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-end-0"><span class="material-symbols-outlined fs-6">calendar_month</span></span>
+                    <input type="text" class="form-control bg-light border-start-0" value="Jan 1, 2026 - Dec 31, 2026" readonly>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="small text-muted fw-bold text-uppercase d-block mb-1">Property</label>
+                 <select class="form-select form-select-sm bg-light">
+                    <option>All Buildings</option>
+                    <option>Building A</option>
+                    <option>Building B</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card card-stats h-100 p-4">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="p-2 rounded bg-primary-subtle text-primary">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+                <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1">+12.5%</span>
+            </div>
+            <div>
+                <p class="text-muted small fw-medium mb-1">Total Revenue (YTD)</p>
+                <h2 class="fw-bold mb-0">@Model.TotalRevenueYTD.ToString("C")</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card card-stats h-100 p-4">
+             <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="p-2 rounded bg-info-subtle text-info-emphasis">
+                    <span class="material-symbols-outlined">door_front</span>
+                </div>
+                 <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1">-2.1%</span>
+            </div>
+            <div>
+                <p class="text-muted small fw-medium mb-1">Avg. Occupancy Rate</p>
+                <h2 class="fw-bold mb-0">@Model.OccupancyRate.ToString("0.0")%</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card card-stats h-100 p-4">
+             <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="p-2 rounded bg-warning-subtle text-warning-emphasis">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+            </div>
+            <div>
+                <p class="text-muted small fw-medium mb-1">Outstanding Balances</p>
+                <h2 class="fw-bold mb-0">@Model.OutstandingBalance.ToString("C")</h2>
+                <small class="text-muted">Due > 30 Days</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts & Data -->
+<div class="row g-4">
+    <!-- Occupancy Trends -->
+    <div class="col-lg-8">
+        <div class="card card-stats h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                <h5 class="fw-bold mb-0">Occupancy Trends</h5>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <div style="height: 350px;">
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Income Statement -->
+    <div class="col-lg-4">
+        <div class="card card-stats h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                <h5 class="fw-bold mb-4">Income Statement</h5>
+            </div>
+            <div class="card-body px-4">
+                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 rounded bg-success-subtle text-success">
+                            <span class="material-symbols-outlined fs-6">arrow_downward</span>
+                        </div>
+                        <span class="fw-medium text-muted">Rental Income</span>
+                    </div>
+                    <span class="fw-bold">@Model.TotalRevenueYTD.ToString("C")</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 rounded bg-info-subtle text-info">
+                            <span class="material-symbols-outlined fs-6">water_drop</span>
+                        </div>
+                        <span class="fw-medium text-muted">Utility Income</span>
+                    </div>
+                    <span class="fw-bold">$0.00</span> <!-- Mocked for now -->
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 rounded bg-danger-subtle text-danger">
+                            <span class="material-symbols-outlined fs-6">build</span>
+                        </div>
+                        <span class="fw-medium text-muted">Maintenance</span>
+                    </div>
+                    <span class="fw-bold text-danger">($0.00)</span> <!-- Mocked -->
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-4 mt-2">
+                    <span class="small fw-bold text-uppercase text-muted">Net Operating Income</span>
+                    <span class="h4 fw-bold text-primary mb-0">@Model.TotalRevenueYTD.ToString("C")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('occupancyChart').getContext('2d');
+            
+            // Mock Data
+            const labels = @Json.Serialize(Model.OccupancyTrendLabels);
+            const data = @Json.Serialize(Model.OccupancyTrendData);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Occupancy Rate (%)',
+                        data: data,
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#0ea5e9',
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#111827',
+                            bodyColor: '#6b7280',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                borderDash: [2, 4],
+                                color: '#e5e7eb',
+                            },
+                            ticks: { callback: function(value) { return value + "%" } }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

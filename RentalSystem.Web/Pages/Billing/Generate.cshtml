@@ -1,0 +1,92 @@
+@page
+@model RentalSystem.Web.Pages.Billing.GenerateModel
+@{
+    ViewData["Title"] = "Generate Invoices";
+}
+
+<div class="container mt-4">
+    <h2>Generate Invoices</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Select Building</label>
+                    <select name="buildingId" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Choose Building --</option>
+                        @foreach (var building in Model.Buildings)
+                        {
+                            <option value="@building.Id" selected="@(building.Id == Model.SelectedBuildingId)">@building.Name</option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.SelectedBuildingId.HasValue && Model.InvoicePreviews.Any())
+    {
+        <form method="post">
+            <input type="hidden" asp-for="SelectedBuildingId" />
+            
+            <div class="d-flex justify-content-end mb-3">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-file-earmark-text"></i> Generate Selected Invoices
+                </button>
+            </div>
+
+            <div class="row">
+                @for (int i = 0; i < Model.InvoicePreviews.Count; i++)
+                {
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 shadow-sm border-primary">
+                            <div class="card-header bg-light d-flex justify-content-between">
+                                <h5 class="mb-0">Room: @Model.InvoicePreviews[i].RoomNumber</h5>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" asp-for="InvoicePreviews[i].IsSelected" checked />
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <input type="hidden" asp-for="InvoicePreviews[i].ContractId" />
+                                <input type="hidden" asp-for="InvoicePreviews[i].RoomNumber" />
+                                <input type="hidden" asp-for="InvoicePreviews[i].TenantName" />
+
+                                <div class="mb-1"><strong>Tenant:</strong> @Model.InvoicePreviews[i].TenantName</div>
+                                <hr />
+                                
+                                <div class="d-flex justify-content-between">
+                                    <span>Rent:</span>
+                                    <span>@Model.InvoicePreviews[i].RentAmount.ToString("C")</span>
+                                    <input type="hidden" asp-for="InvoicePreviews[i].RentAmount" />
+                                </div>
+
+                                <div class="d-flex justify-content-between text-primary">
+                                    <span>Water (@Model.InvoicePreviews[i].WaterUsage units):</span>
+                                    <span>@Model.InvoicePreviews[i].WaterCost.ToString("C")</span>
+                                    <input type="hidden" asp-for="InvoicePreviews[i].WaterUsage" />
+                                    <input type="hidden" asp-for="InvoicePreviews[i].WaterCost" />
+                                </div>
+
+                                <div class="d-flex justify-content-between text-danger">
+                                    <span>Electric (@Model.InvoicePreviews[i].ElectricUsage units):</span>
+                                    <span>@Model.InvoicePreviews[i].ElectricCost.ToString("C")</span>
+                                    <input type="hidden" asp-for="InvoicePreviews[i].ElectricUsage" />
+                                    <input type="hidden" asp-for="InvoicePreviews[i].ElectricCost" />
+                                </div>
+                                <hr />
+                                <div class="d-flex justify-content-between fw-bold fs-5">
+                                    <span>Total:</span>
+                                    <span>@Model.InvoicePreviews[i].TotalAmount.ToString("C")</span>
+                                    <input type="hidden" asp-for="InvoicePreviews[i].TotalAmount" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </form>
+    }
+    else if (Model.SelectedBuildingId.HasValue)
+    {
+        <div class="alert alert-warning">No active contracts found for this building or billing data missing.</div>
+    }
+</div>

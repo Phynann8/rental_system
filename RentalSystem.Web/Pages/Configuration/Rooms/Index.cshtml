@@ -1,0 +1,59 @@
+@page
+@model RentalSystem.Web.Pages.Configuration.Rooms.IndexModel
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-end align-items-center mb-3">
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Create New
+        </a>
+    </div>
+
+    <!-- Filter Form could go here -->
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Room Number</th>
+                <th>Building</th>
+                <th>Type</th>
+                <th>Floor</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Rooms)
+            {
+                <tr>
+                    <td>@item.RoomNumber</td>
+                    <td>@item.Building?.Name</td>
+                    <td>@item.RoomType?.Name</td>
+                    <td>@item.Floor</td>
+                    <td>
+                        <span class="badge @GetStatusBadge(item.Status)">@item.Status</span>
+                    </td>
+                    <td>
+                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    string GetStatusBadge(RentalSystem.Web.Models.RoomStatus status)
+    {
+        return status switch
+        {
+            RentalSystem.Web.Models.RoomStatus.Vacant => "bg-success",
+            RentalSystem.Web.Models.RoomStatus.Occupied => "bg-danger",
+            RentalSystem.Web.Models.RoomStatus.Maintenance => "bg-warning text-dark",
+            _ => "bg-secondary"
+        };
+    }
+}

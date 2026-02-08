@@ -1,0 +1,58 @@
+@model RentalSystem.Web.Models.Invoice
+
+<div class="receipt-header">
+    <div class="company-name">
+        MY RENTAL SYSTEM <br />
+        <small style="font-size: 0.8rem; font-weight: normal; color: #555;">123 Street, Phnom Penh</small>
+    </div>
+    <div class="invoice-title">
+        INVOICE<br />
+        <small>#@Model.Id.ToString("D5")</small>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-6">
+        <strong>Bill To:</strong><br />
+        @Model.Contract?.Tenant?.Name<br />
+        Room: @Model.Contract?.Room?.RoomNumber
+    </div>
+    <div class="col-6 text-end">
+        <strong>Date:</strong> @Model.Date.ToShortDateString()<br />
+        <strong>Due:</strong> @Model.DueDate.ToShortDateString()
+    </div>
+</div>
+
+<table class="table table-sm table-bordered border-dark">
+    <thead class="table-light border-dark">
+        <tr>
+            <th>Description</th>
+            <th class="text-end">Qty</th>
+            <th class="text-end">Unit Price</th>
+            <th class="text-end">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Description</td>
+                <td class="text-end">@item.Quantity</td>
+                <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                <td class="text-end">@item.Total.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="row">
+    <div class="col-6 pt-3">
+        <div style="border-bottom: 1px solid #000; width: 150px; margin-top: 30px;"></div>
+        <small>Owner Signature</small>
+    </div>
+    <div class="col-6">
+        <div class="total-box">
+            TOTAL: @Model.TotalAmount.ToString("C")
+        </div>
+    </div>
+</div>

@@ -1,0 +1,45 @@
+@page
+@model RentalSystem.Web.Pages.Tenancy.Tenants.CreateModel
+@{
+    ViewData["Title"] = "Add Tenant";
+}
+
+<div class="container mt-4">
+    <h2>Add New Tenant</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="Tenant.Name" class="form-label"></label>
+                    <input asp-for="Tenant.Name" class="form-control" />
+                    <span asp-validation-for="Tenant.Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Tenant.Phone" class="form-label"></label>
+                    <input asp-for="Tenant.Phone" class="form-control" />
+                    <span asp-validation-for="Tenant.Phone" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Tenant.NationalId" class="form-label">National ID / Passport</label>
+                    <input asp-for="Tenant.NationalId" class="form-control" />
+                    <span asp-validation-for="Tenant.NationalId" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Tenant.Hometown" class="form-label">Address / Hometown</label>
+                    <textarea asp-for="Tenant.Hometown" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Tenant.Hometown" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

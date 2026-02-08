@@ -1,0 +1,63 @@
+@page "{id:int}"
+@model RentalSystem.Web.Pages.Billing.ReceivePaymentModel
+@{
+    ViewData["Title"] = "Receive Payment";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Record Payment for Invoice #@Model.Payment.InvoiceId</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Invoice != null)
+                {
+                    <div class="alert alert-info py-2">
+                        <div class="row">
+                            <div class="col-6"><strong>Tenant:</strong> @Model.Invoice.Contract?.Tenant?.Name</div>
+                            <div class="col-6"><strong>Room:</strong> @Model.Invoice.Contract?.Room?.RoomNumber</div>
+                        </div>
+                        <div class="mt-2">
+                            <strong>Invoice Total:</strong> @Model.Invoice.TotalAmount.ToString("C")
+                        </div>
+                    </div>
+                }
+
+                <form method="post">
+                    <input type="hidden" asp-for="Payment.InvoiceId" />
+                    
+                    <div class="mb-3">
+                        <label asp-for="Payment.Amount" class="form-label fw-bold">Amount Paid</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Payment.Amount" class="form-control form-control-lg text-primary fw-bold" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Payment.Amount" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Payment.Date" class="form-label">Payment Date</label>
+                        <input asp-for="Payment.Date" class="form-control" type="date" />
+                        <span asp-validation-for="Payment.Date" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Payment.Method" class="form-label">Payment Method</label>
+                        <select asp-for="Payment.Method" class="form-select" asp-items="Html.GetEnumSelectList<RentalSystem.Web.Models.PaymentMethod>()"></select>
+                        <span asp-validation-for="Payment.Method" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Save Payment</button>
+                        <a asp-page="./Index" class="btn btn-outline-secondary">Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

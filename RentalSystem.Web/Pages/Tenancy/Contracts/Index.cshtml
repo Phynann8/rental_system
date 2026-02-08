@@ -1,0 +1,63 @@
+@page
+@model RentalSystem.Web.Pages.Tenancy.Contracts.IndexModel
+@{
+    ViewData["Title"] = "Contracts";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>@ViewData["Title"]</h2>
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> New Contract
+        </a>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Room</th>
+                <th>Tenant</th>
+                <th>Rent Price</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Contracts)
+            {
+                <tr>
+                    <td>@item.Room?.RoomNumber</td>
+                    <td>@item.Tenant?.Name</td>
+                    <td>@item.RentPrice.ToString("C")</td>
+                    <td>@item.StartDate.ToShortDateString()</td>
+                    <td>@item.EndDate.ToShortDateString()</td>
+                    <td>
+                        <span class="badge @GetStatusBadge(item.Status)">@item.Status</span>
+                    </td>
+                    <td>
+                        <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        @if (item.Status == RentalSystem.Web.Models.ContractStatus.Active)
+                        {
+                            <a asp-page="./Terminate" asp-route-id="@item.Id" class="btn btn-sm btn-danger">End</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    string GetStatusBadge(RentalSystem.Web.Models.ContractStatus status)
+    {
+        return status switch
+        {
+            RentalSystem.Web.Models.ContractStatus.Active => "bg-success",
+            RentalSystem.Web.Models.ContractStatus.Ended => "bg-secondary",
+            RentalSystem.Web.Models.ContractStatus.Terminated => "bg-danger",
+            _ => "bg-light text-dark"
+        };
+    }
+}

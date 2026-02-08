@@ -1,0 +1,56 @@
+@page
+@model RentalSystem.Web.Pages.Configuration.Rooms.CreateModel
+@{
+    ViewData["Title"] = "Create Room";
+}
+
+<div class="container mt-4">
+    <h2>Create Room</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <div class="mb-3">
+                    <label asp-for="Room.BuildingId" class="form-label">Building</label>
+                    <select asp-for="Room.BuildingId" class="form-select" asp-items="ViewBag.BuildingId"></select>
+                    <span asp-validation-for="Room.BuildingId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Room.RoomTypeId" class="form-label">Room Type</label>
+                    <select asp-for="Room.RoomTypeId" class="form-select" asp-items="ViewBag.RoomTypeId"></select>
+                    <span asp-validation-for="Room.RoomTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Room.RoomNumber" class="form-label"></label>
+                    <input asp-for="Room.RoomNumber" class="form-control" />
+                    <span asp-validation-for="Room.RoomNumber" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Room.Floor" class="form-label"></label>
+                    <input asp-for="Room.Floor" class="form-control" />
+                    <span asp-validation-for="Room.Floor" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Room.Status" class="form-label"></label>
+                    <select asp-for="Room.Status" class="form-select" asp-items="Html.GetEnumSelectList<RentalSystem.Web.Models.RoomStatus>()"></select>
+                    <span asp-validation-for="Room.Status" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                    <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

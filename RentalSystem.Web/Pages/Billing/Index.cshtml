@@ -1,0 +1,54 @@
+@page
+@model RentalSystem.Web.Pages.Billing.IndexModel
+@{
+    ViewData["Title"] = "Invoices";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-page="RecordReadings" class="btn btn-outline-primary me-2">Record Readings</a>
+        <a asp-page="Generate" class="btn btn-primary">Generate New</a>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Invoice #</th>
+                <th>Room</th>
+                <th>Tenant</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Invoices)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Contract?.Room?.RoomNumber</td>
+                    <td>@item.Contract?.Tenant?.Name</td>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>@item.TotalAmount.ToString("C")</td>
+                    <td>
+                        <span class="badge @(item.Status == RentalSystem.Web.Models.InvoiceStatus.Paid ? "bg-success" : "bg-warning text-dark")">
+                            @item.Status
+                        </span>
+                    </td>
+                    <td>
+                        <a asp-page="/Print/Invoice" asp-route-id="@item.Id" target="_blank" class="btn btn-sm btn-secondary">
+                            <i class="bi bi-printer"></i> Print
+                        </a>
+                        @if (item.Status != RentalSystem.Web.Models.InvoiceStatus.Paid)
+                        {
+                            <a asp-page="./ReceivePayment" asp-route-id="@item.Id" class="btn btn-sm btn-success">
+                                <i class="bi bi-cash-stack"></i> Pay
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

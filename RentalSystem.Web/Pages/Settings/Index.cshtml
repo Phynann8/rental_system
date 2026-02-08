@@ -1,0 +1,91 @@
+@page
+@model RentalSystem.Web.Pages.Settings.IndexModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card card-stats border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="fw-bold mb-0">System Configuration</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                <a asp-page="/Configuration/Buildings/Index" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 rounded bg-primary-subtle text-primary">
+                            <span class="material-symbols-outlined">domain</span>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Properties / Buildings</h6>
+                            <p class="text-muted small mb-0">Manage your buildings, addresses, and property details.</p>
+                        </div>
+                        <span class="material-symbols-outlined ms-auto text-muted">chevron_right</span>
+                    </div>
+                </a>
+                
+                <a asp-page="/Configuration/Rooms/Index" class="list-group-item list-group-item-action p-4 border-0 border-bottom">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 rounded bg-info-subtle text-info">
+                            <span class="material-symbols-outlined">grid_view</span>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Room Inventory</h6>
+                            <p class="text-muted small mb-0">Add or edit rooms, set numbers, and assign floors.</p>
+                        </div>
+                        <span class="material-symbols-outlined ms-auto text-muted">chevron_right</span>
+                    </div>
+                </a>
+
+                <a asp-page="/Configuration/RoomTypes/Index" class="list-group-item list-group-item-action p-4 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 rounded bg-warning-subtle text-warning-emphasis">
+                            <span class="material-symbols-outlined">category</span>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Room Types & Pricing</h6>
+                            <p class="text-muted small mb-0">Define standard room types and base rental prices.</p>
+                        </div>
+                        <span class="material-symbols-outlined ms-auto text-muted">chevron_right</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="card card-stats border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="fw-bold mb-0">Application Settings</h5>
+            </div>
+            <div class="card-body p-4">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Application Name</label>
+                        <input type="text" class="form-control" value="RentalMgr" disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase text-muted">Currency</label>
+                        <select class="form-select" disabled>
+                            <option selected>USD ($)</option>
+                            <option>KHR (៛)</option>
+                        </select>
+                        <div class="form-text">Currency settings are currently locked.</div>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="darkModeSwitch" disabled>
+                        <label class="form-check-label" for="darkModeSwitch">Enable Dark Mode (Coming Soon)</label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Sidebar or Help Info -->
+        <div class="card bg-primary text-white border-0 shadow-sm p-4 text-center">
+            <span class="material-symbols-outlined display-4 mb-3">support_agent</span>
+            <h5>Need Help?</h5>
+            <p class="small text-white-50">Contact support if you need assistance configuring your property settings.</p>
+            <button class="btn btn-light text-primary fw-bold w-100">Contact Support</button>
+        </div>
+    </div>
+</div>

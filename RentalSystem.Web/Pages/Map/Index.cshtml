@@ -1,0 +1,123 @@
+@page
+@model RentalSystem.Web.Pages.Map.IndexModel
+@{
+    ViewData["Title"] = "Property Map";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <h2 class="mb-3">Property Map</h2>
+            <form method="get">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Building</label>
+                    <select asp-for="SelectedBuildingId" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Choose Building --</option>
+                        @foreach (var building in Model.Buildings)
+                        {
+                            <option value="@building.Id">@building.Name</option>
+                        }
+                    </select>
+                </div>
+            </form>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-light fw-bold">Legend</div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="room-box legend bg-success text-white me-2"></div> <span>Vacant</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="room-box legend bg-danger text-white me-2"></div> <span>Occupied</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="room-box legend bg-warning text-dark me-2"></div> <span>Maintenance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            @if (Model.SelectedBuildingId.HasValue && Model.GroupedRooms != null)
+            {
+                <div class="building-container p-4 border rounded bg-white shadow-sm">
+                    <h3 class="text-center mb-4 text-primary">@Model.SelectedBuildingName</h3>
+                    
+                    @foreach (var floorGroup in Model.GroupedRooms.OrderByDescending(g => g.Key))
+                    {
+                        <div class="floor-row mb-4">
+                            <h5 class="floor-label text-muted">Floor @floorGroup.Key</h5>
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach (var room in floorGroup.Value.OrderBy(r => r.RoomNumber))
+                                {
+                                    <div class="room-card position-relative shadow-sm @GetRoomColorClass(room.Status)" 
+                                         onclick="alert('Room: @room.RoomNumber \nStatus: @room.Status')">
+                                        
+                                        <div class="room-number fw-bold">@room.RoomNumber</div>
+                                        <div class="room-type small">@room.RoomType?.Name</div>
+                                        <div class="room-price small">@((room.RoomType?.BasePrice ?? 0).ToString("C0"))</div>
+                                        
+                                        @if(room.Status == RentalSystem.Web.Models.RoomStatus.Occupied)
+                                        {
+                                            <div class="tenant-icon position-absolute top-0 end-0 p-1">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <hr class="text-muted opacity-25" />
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center p-5">
+                    <h4>Select a building to view the map</h4>
+                    <p>Use the dropdown on the left to load the layout.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .room-box.legend {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+    }
+    .room-card {
+        width: 120px;
+        height: 100px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    .room-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,0.15)!important;
+    }
+    .room-card.bg-success { background-color: #d1e7dd !important; color: #0f5132; }
+    .room-card.bg-danger { background-color: #f8d7da !important; color: #842029; }
+    .room-card.bg-warning { background-color: #fff3cd !important; color: #664d03; }
+</style>
+
+@functions {
+    string GetRoomColorClass(RentalSystem.Web.Models.RoomStatus status)
+    {
+        return status switch
+        {
+            RentalSystem.Web.Models.RoomStatus.Vacant => "bg-success",
+            RentalSystem.Web.Models.RoomStatus.Occupied => "bg-danger",
+            RentalSystem.Web.Models.RoomStatus.Maintenance => "bg-warning",
+            _ => "bg-secondary"
+        };
+    }
+}

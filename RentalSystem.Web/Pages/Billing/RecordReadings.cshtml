@@ -1,0 +1,82 @@
+@page
+@model RentalSystem.Web.Pages.Billing.RecordReadingsModel
+@{
+    ViewData["Title"] = "Record Meter Readings";
+}
+
+<div class="container mt-4">
+    <h2>Record Meter Readings</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Select Building</label>
+                    <select name="buildingId" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Choose Building --</option>
+                        @foreach (var building in Model.Buildings)
+                        {
+                            <option value="@building.Id" selected="@(building.Id == Model.SelectedBuildingId)">@building.Name</option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.SelectedBuildingId.HasValue && Model.RoomReadings.Any())
+    {
+        <form method="post">
+            <input type="hidden" asp-for="SelectedBuildingId" />
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Room</th>
+                        <th>Type</th>
+                        <th class="text-primary">Water (Old)</th>
+                        <th class="text-primary">Water (New)</th>
+                        <th class="text-danger">Electric (Old)</th>
+                        <th class="text-danger">Electric (New)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.RoomReadings.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@Model.RoomReadings[i].RoomNumber</strong>
+                                <input type="hidden" name="RoomReadings[@i].RoomId" value="@Model.RoomReadings[i].RoomId" />
+                                <input type="hidden" name="RoomReadings[@i].RoomNumber" value="@Model.RoomReadings[i].RoomNumber" />
+                            </td>
+                            <td>@Model.RoomReadings[i].RoomType</td>
+                            
+                            <!-- Water -->
+                            <td>
+                                <input type="number" step="0.01" class="form-control" readonly 
+                                       name="RoomReadings[@i].OldWater" value="@Model.RoomReadings[i].OldWater" />
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" class="form-control" 
+                                       name="RoomReadings[@i].NewWater" value="@Model.RoomReadings[i].NewWater" />
+                            </td>
+
+                            <!-- Electric -->
+                            <td>
+                                <input type="number" step="0.01" class="form-control" readonly 
+                                       name="RoomReadings[@i].OldElectric" value="@Model.RoomReadings[i].OldElectric" />
+                            </td>
+                            <td>
+                                <input type="number" step="0.01" class="form-control" 
+                                       name="RoomReadings[@i].NewElectric" value="@Model.RoomReadings[i].NewElectric" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success btn-lg">Save Readings</button>
+        </form>
+    }
+    else if (Model.SelectedBuildingId.HasValue)
+    {
+        <div class="alert alert-warning">No occupied rooms found in this building.</div>
+    }
+</div>
