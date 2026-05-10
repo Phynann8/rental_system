@@ -15,17 +15,18 @@ namespace RentalSystem.Web.Pages.Print
             _context = context;
         }
 
-        public Invoice Invoice { get; set; } = default!;
+        public Invoice Invoice { get; private set; } = null!;
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
             var invoice = await _context.Invoices
+                .AsNoTracking()
                 .Include(i => i.Items)
-                .Include(i => i.Contract).ThenInclude(c => c.Room)
-                .Include(i => i.Contract).ThenInclude(c => c.Tenant)
+                .Include(i => i.Contract!).ThenInclude(c => c.Room)
+                .Include(i => i.Contract!).ThenInclude(c => c.Tenant)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (invoice == null)
+            if (invoice == null || invoice.Contract == null || invoice.Contract.Room == null || invoice.Contract.Tenant == null)
             {
                 return NotFound();
             }

@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using RentalSystem.Web.Data;
 
 namespace RentalSystem.Web.Models
 {
-    public class Tenant
+    public class Tenant : ISaasScoped
     {
         public int Id { get; set; }
+        public int OrganizationId { get; set; }
 
         [Required]
         [StringLength(100)]
@@ -21,5 +23,6 @@ namespace RentalSystem.Web.Models
 
         // Navigation
         public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
+        public ICollection<TenantDocument> Documents { get; set; } = new List<TenantDocument>();
     }
 }

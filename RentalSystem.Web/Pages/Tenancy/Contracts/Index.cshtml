@@ -37,10 +37,10 @@
                         <span class="badge @GetStatusBadge(item.Status)">@item.Status</span>
                     </td>
                     <td>
-                        <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        @* <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a> *@
                         @if (item.Status == RentalSystem.Web.Models.ContractStatus.Active)
                         {
-                            <a asp-page="./Terminate" asp-route-id="@item.Id" class="btn btn-sm btn-danger">End</a>
+                            @* <a asp-page="./Terminate" asp-route-id="@item.Id" class="btn btn-sm btn-danger">End</a> *@
                         }
                     </td>
                 </tr>

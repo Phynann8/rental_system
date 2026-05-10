@@ -18,14 +18,7 @@ namespace RentalSystem.Web.Pages.Tenancy.Contracts
 
         public IActionResult OnGet()
         {
-            ViewData["TenantId"] = new SelectList(_context.Tenants, "Id", "Name");
-            // Only show vacant rooms ideally, but good to list all for now or filter by Status=Vacant
-            var rooms = _context.Rooms
-                .Include(r => r.RoomType)
-                .Select(r => new { Id = r.Id, Name = $"{r.RoomNumber} ({r.RoomType.Name} - ${r.RoomType.BasePrice})" })
-                .ToList();
-            
-            ViewData["RoomId"] = new SelectList(rooms, "Id", "Name");
+            PopulateSelectLists();
             return Page();
         }
 
@@ -36,24 +29,49 @@ namespace RentalSystem.Web.Pages.Tenancy.Contracts
         {
             if (!ModelState.IsValid)
             {
-               ViewData["TenantId"] = new SelectList(_context.Tenants, "Id", "Name");
-               ViewData["RoomId"] = new SelectList(_context.Rooms, "Id", "RoomNumber");
-               return Page();
+                PopulateSelectLists();
+                return Page();
+            }
+
+            // Check for nulls
+            var room = await _context.Rooms.FindAsync(Contract.RoomId);
+            var tenant = await _context.Tenants.FindAsync(Contract.TenantId);
+            if (room == null || tenant == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid Room or Tenant.");
+                PopulateSelectLists();
+                return Page();
             }
 
             // 1. Save Contract
+            Contract.Room = room;
+            Contract.Tenant = tenant;
+            Contract.Status = ContractStatus.Active;
             _context.Contracts.Add(Contract);
-            
+
             // 2. Update Room Status to Occupied
-            var room = await _context.Rooms.FindAsync(Contract.RoomId);
-            if(room != null)
-            {
-                room.Status = RoomStatus.Occupied;
-            }
+            room.Status = RoomStatus.Occupied;
 
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
+        }
+
+        private void PopulateSelectLists()
+        {
+            ViewData["TenantId"] = new SelectList(_context.Tenants.AsNoTracking(), "Id", "Name");
+
+            var rooms = _context.Rooms
+                .AsNoTracking()
+                .Include(r => r.RoomType)
+                .Select(r => new
+                {
+                    Id = r.Id,
+                    Name = $"{r.RoomNumber} ({(r.RoomType != null ? r.RoomType.Name : "Unassigned Type")} - ${(r.RoomType != null ? r.RoomType.BasePrice : 0m)})"
+                })
+                .ToList();
+
+            ViewData["RoomId"] = new SelectList(rooms, "Id", "Name");
         }
     }
 }

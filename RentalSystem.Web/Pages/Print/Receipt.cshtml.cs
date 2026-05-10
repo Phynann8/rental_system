@@ -15,20 +15,25 @@ namespace RentalSystem.Web.Pages.Print
             _context = context;
         }
 
-        public Payment Payment { get; set; } = default!;
+        public Payment Payment { get; private set; } = null!;
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Payment = await _context.Payments
-                .Include(p => p.Invoice).ThenInclude(i => i.Contract).ThenInclude(c => c.Tenant)
-                .Include(p => p.Invoice).ThenInclude(i => i.Contract).ThenInclude(c => c.Room)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var payment = await _context.Payments
+                .AsNoTracking()
+                .Include(p => p.Invoice!)
+                .ThenInclude(i => i.Contract!)
+                .ThenInclude(c => c.Tenant)
+                .Include(p => p.Invoice!)
+                .ThenInclude(i => i.Contract!)
+                .ThenInclude(c => c.Room)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (Payment == null)
+            if (payment == null || payment.Invoice == null || payment.Invoice.Contract == null || payment.Invoice.Contract.Room == null || payment.Invoice.Contract.Tenant == null)
             {
                 return NotFound();
             }
-
+            Payment = payment;
             return Page();
         }
     }

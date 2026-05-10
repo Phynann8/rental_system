@@ -41,9 +41,9 @@ public class IndexModel : PageModel
         OccupancyRate = TotalRooms > 0 ? (double)OccupiedRooms / TotalRooms * 100 : 0;
 
         // 2. Revenue Projected (Active Contracts)
-        MonthlyRevenue = await _context.Contracts
-            .Where(c => c.Status == ContractStatus.Active)
-            .SumAsync(c => c.RentPrice);
+            MonthlyRevenue = await _context.Contracts
+                .Where(c => c.Status == ContractStatus.Active && c.Room != null && c.Tenant != null)
+                .SumAsync(c => c.RentPrice);
 
         // 3. Pending Invoices (Unpaid or Partial)
         var pendingInvoicesQuery = _context.Invoices
@@ -54,8 +54,9 @@ public class IndexModel : PageModel
 
         // 4. Recent Invoices List (Top 5)
         RecentInvoices = await _context.Invoices
-            .Include(i => i.Contract).ThenInclude(c => c.Tenant)
-            .Include(i => i.Contract).ThenInclude(c => c.Room)
+            .AsNoTracking()
+            .Include(i => i.Contract!).ThenInclude(c => c.Tenant)
+            .Include(i => i.Contract!).ThenInclude(c => c.Room)
             .OrderByDescending(i => i.Date)
             .Take(5)
             .ToListAsync();
@@ -80,8 +81,9 @@ public class IndexModel : PageModel
 
         // 6. Recent Payments (for Activity Feed)
         RecentPayments = await _context.Payments
-            .Include(p => p.Invoice).ThenInclude(i => i.Contract).ThenInclude(c => c.Room)
-            .Include(p => p.Invoice).ThenInclude(i => i.Contract).ThenInclude(c => c.Tenant)
+            .AsNoTracking()
+            .Include(p => p.Invoice!).ThenInclude(i => i.Contract!).ThenInclude(c => c.Room)
+            .Include(p => p.Invoice!).ThenInclude(i => i.Contract!).ThenInclude(c => c.Tenant)
             .OrderByDescending(p => p.Date)
             .Take(5)
             .ToListAsync();

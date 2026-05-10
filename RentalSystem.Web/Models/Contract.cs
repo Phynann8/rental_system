@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using RentalSystem.Web.Data;
 
 namespace RentalSystem.Web.Models
 {
@@ -10,9 +11,10 @@ namespace RentalSystem.Web.Models
         Terminated
     }
 
-    public class Contract
+    public class Contract : ISaasScoped
     {
         public int Id { get; set; }
+        public int OrganizationId { get; set; }
 
         public int TenantId { get; set; }
         public Tenant? Tenant { get; set; }

@@ -16,25 +16,22 @@ namespace RentalSystem.Web.Pages.Billing
         }
 
         [BindProperty]
-        public Payment Payment { get; set; } = default!;
+        public Payment Payment { get; set; } = new();
 
-        public Invoice Invoice { get; set; } = default!;
+        public Invoice Invoice { get; private set; } = null!;
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Invoice = await _context.Invoices
-                .Include(i => i.Contract).ThenInclude(c => c.Tenant)
-                .Include(i => i.Contract).ThenInclude(c => c.Room)
-                .Include(i => i.Payments)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (Invoice == null)
+            var invoice = await LoadInvoiceForDisplayAsync(id);
+            if (invoice == null)
             {
                 return NotFound();
             }
 
-            decimal alreadyPaid = Invoice.Payments.Sum(p => p.Amount);
-            decimal remaining = Invoice.TotalAmount - alreadyPaid;
+            Invoice = invoice;
+
+            decimal alreadyPaid = invoice.Payments.Sum(p => p.Amount);
+            decimal remaining = invoice.TotalAmount - alreadyPaid;
 
             Payment = new Payment
             {
@@ -49,6 +46,19 @@ namespace RentalSystem.Web.Pages.Billing
 
         public async Task<IActionResult> OnPostAsync()
         {
+            var pageInvoice = await LoadInvoiceForDisplayAsync(Payment.InvoiceId);
+            if (pageInvoice == null)
+            {
+                return NotFound();
+            }
+
+            Invoice = pageInvoice;
+
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
             var invoice = await _context.Invoices
                 .Include(i => i.Payments)
                 .FirstOrDefaultAsync(i => i.Id == Payment.InvoiceId);
@@ -76,6 +86,20 @@ namespace RentalSystem.Web.Pages.Billing
             await _context.SaveChangesAsync();
 
             return RedirectToPage("/Print/Receipt", new { id = Payment.Id });
+        }
+
+        private Task<Invoice?> LoadInvoiceForDisplayAsync(int invoiceId)
+        {
+            return _context.Invoices
+                .AsNoTracking()
+                .Include(i => i.Contract!).ThenInclude(c => c.Tenant)
+                .Include(i => i.Contract!).ThenInclude(c => c.Room)
+                .Include(i => i.Payments)
+                .FirstOrDefaultAsync(i =>
+                    i.Id == invoiceId &&
+                    i.Contract != null &&
+                    i.Contract.Tenant != null &&
+                    i.Contract.Room != null);
         }
     }
 }

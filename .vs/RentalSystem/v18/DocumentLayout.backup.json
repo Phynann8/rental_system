@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\1-Computer Science\\1-Personal Project\\rental_system\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{35535E86-38B8-4E69-95B8-BB7BB0627A58}|RentalSystem.Web\\RentalSystem.Web.csproj|d:\\1-computer science\\1-personal project\\rental_system\\rentalsystem.web\\controllers\\tenantscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35535E86-38B8-4E69-95B8-BB7BB0627A58}|RentalSystem.Web\\RentalSystem.Web.csproj|solutionrelative:rentalsystem.web\\controllers\\tenantscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35535E86-38B8-4E69-95B8-BB7BB0627A58}|RentalSystem.Web\\RentalSystem.Web.csproj|d:\\1-computer science\\1-personal project\\rental_system\\rentalsystem.web\\build_output.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{35535E86-38B8-4E69-95B8-BB7BB0627A58}|RentalSystem.Web\\RentalSystem.Web.csproj|solutionrelative:rentalsystem.web\\build_output.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TenantsController.cs",
+              "DocumentMoniker": "D:\\1-Computer Science\\1-Personal Project\\rental_system\\RentalSystem.Web\\Controllers\\TenantsController.cs",
+              "RelativeDocumentMoniker": "RentalSystem.Web\\Controllers\\TenantsController.cs",
+              "ToolTip": "D:\\1-Computer Science\\1-Personal Project\\rental_system\\RentalSystem.Web\\Controllers\\TenantsController.cs",
+              "RelativeToolTip": "RentalSystem.Web\\Controllers\\TenantsController.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAowCcAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-18T01:53:04.343Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "build_output.txt",
+              "DocumentMoniker": "D:\\1-Computer Science\\1-Personal Project\\rental_system\\RentalSystem.Web\\build_output.txt",
+              "RelativeDocumentMoniker": "RentalSystem.Web\\build_output.txt",
+              "ToolTip": "D:\\1-Computer Science\\1-Personal Project\\rental_system\\RentalSystem.Web\\build_output.txt",
+              "RelativeToolTip": "RentalSystem.Web\\build_output.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2026-04-18T01:49:38.147Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

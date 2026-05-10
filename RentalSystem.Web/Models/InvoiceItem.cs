@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using RentalSystem.Web.Data;
 
 namespace RentalSystem.Web.Models
 {
-    public class InvoiceItem
+    public class InvoiceItem : ISaasScoped
     {
         public int Id { get; set; }
-
+        public int OrganizationId { get; set; }
         public int InvoiceId { get; set; }
         public Invoice? Invoice { get; set; }
 

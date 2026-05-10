@@ -25,29 +25,46 @@ namespace RentalSystem.Web.Pages.Billing
 
         public async Task OnGetAsync()
         {
-            Buildings = await _context.Buildings.ToListAsync();
+            Buildings = await _context.Buildings
+                .AsNoTracking()
+                .ToListAsync();
 
             if (SelectedBuildingId.HasValue)
             {
-                var building = await _context.Buildings.FindAsync(SelectedBuildingId);
+                var buildingId = SelectedBuildingId.Value;
+                var building = await _context.Buildings
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(b => b.Id == buildingId);
                 var waterRate = building?.WaterUnitPrice ?? 0;
                 var electricRate = building?.ElectricUnitPrice ?? 0;
 
                 var contracts = await _context.Contracts
-                    .Include(c => c.Room)
+                    .AsNoTracking()
+                    .Include(c => c.Room!)
                     .ThenInclude(r => r.Meters)
                     .Include(c => c.Tenant)
-                    .Where(c => c.Room.BuildingId == SelectedBuildingId && c.Status == ContractStatus.Active)
+                    .Where(c => c.Room != null && c.Room.BuildingId == buildingId && c.Status == ContractStatus.Active)
                     .ToListAsync();
 
                 foreach (var contract in contracts)
                 {
+                    // Null checks for Room and Tenant
+                    if (contract.Room == null || contract.Tenant == null) continue;
+
                     // Logic: Get Last 2 readings to calculate usage
                     // For Production: Needs strict "Billing Cycle" logic. 
                     // For MVP: Diff between latest reading and previous reading.
-                    
-                    var waterMeters = contract.Room.Meters.Where(m => m.Type == MeterType.Water).OrderByDescending(m => m.LastReadingDate).Take(2).ToList();
-                    var eleMeters = contract.Room.Meters.Where(m => m.Type == MeterType.Electric).OrderByDescending(m => m.LastReadingDate).Take(2).ToList();
+
+                    var waterMeters = contract.Room.Meters
+                        .Where(m => m.Type == MeterType.Water)
+                        .OrderByDescending(m => m.LastReadingDate)
+                        .Take(2)
+                        .ToList();
+                    var eleMeters = contract.Room.Meters
+                        .Where(m => m.Type == MeterType.Electric)
+                        .OrderByDescending(m => m.LastReadingDate)
+                        .Take(2)
+                        .ToList();
 
                     double waterUsage = (waterMeters.Count == 2) ? waterMeters[0].CurrentReading - waterMeters[1].CurrentReading : 0;
                     double eleUsage = (eleMeters.Count == 2) ? eleMeters[0].CurrentReading - eleMeters[1].CurrentReading : 0;

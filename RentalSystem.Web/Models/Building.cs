@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using RentalSystem.Web.Data;
 
 namespace RentalSystem.Web.Models
 {
-    public class Building
+    public class Building : ISaasScoped
     {
         public int Id { get; set; }
+        public int OrganizationId { get; set; }
 
         [Required]
         [StringLength(100)]

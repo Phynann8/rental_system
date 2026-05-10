@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using RentalSystem.Web.Data;
 
 namespace RentalSystem.Web.Models
 {
@@ -8,9 +9,10 @@ namespace RentalSystem.Web.Models
         Electric
     }
 
-    public class UtilityMeter
+    public class UtilityMeter : ISaasScoped
     {
         public int Id { get; set; }
+        public int OrganizationId { get; set; }
 
         public int RoomId { get; set; }
         public Room? Room { get; set; }

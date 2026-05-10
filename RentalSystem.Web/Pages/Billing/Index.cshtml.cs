@@ -14,15 +14,17 @@ namespace RentalSystem.Web.Pages.Billing
             _context = context;
         }
 
-        public IList<Invoice> Invoices { get; set; } = default!;
+        public IList<Invoice> Invoices { get; set; } = new List<Invoice>();
 
         public async Task OnGetAsync()
         {
             Invoices = await _context.Invoices
-                .Include(i => i.Contract).ThenInclude(c => c.Room)
-                .Include(i => i.Contract).ThenInclude(c => c.Tenant)
-                .OrderByDescending(i => i.Date)
-                .ToListAsync();
+                 .AsNoTracking()
+                 .Include(i => i.Contract!).ThenInclude(c => c.Room)
+                 .Include(i => i.Contract!).ThenInclude(c => c.Tenant)
+                 .Where(i => i.Contract != null && i.Contract.Room != null && i.Contract.Tenant != null)
+                 .OrderByDescending(i => i.Date)
+                 .ToListAsync();
         }
     }
 }

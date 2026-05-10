@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      # IMPORTANT: Use a secure password from a .env file or environment secret
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-Password123!}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD:-Password123!}", "-Q", "SELECT 1", "-No"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build: 
+      context: ./RentalSystem.Web
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      # IMPORTANT: Use a secure connection string from a .env file or environment secret
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION_STRING:-Server=db;Database=RentalSystemDb;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./rentalmgr---professional-property-management
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  sql_data:

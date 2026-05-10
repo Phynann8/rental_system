@@ -13,6 +13,14 @@ obj/
 dist/
 build/
 out/
+backend-publish/
+artifacts/
+coverage/
+
+# Test artifacts
+*.trx
+test-results/
+.nyc_output/
 
 # Python cache
 __pycache__/
@@ -33,3 +41,8 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# CI/CD
+.github/workflows/*.log
+github-actions-artifacts/
+

@@ -1,170 +1,197 @@
+/// <reference types="vite/client" />
+import React, { useEffect, useState } from 'react';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 
-import React, { useState } from 'react';
-import { HashRouter as Router, Routes, Route, NavLink, useLocation } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Buildings from './pages/Buildings';
-import Rooms from './pages/Rooms';
-import Readings from './pages/Readings';
-import Invoices from './pages/Invoices';
-import Tenants from './pages/Tenants';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
-import NewLease from './pages/NewLease';
+// Pages
+import Dashboard from './pages/DashboardLive';
+import Buildings from './pages/BuildingsLive';
+import Rooms from './pages/RoomsLive';
+import Readings from './pages/ReadingsLive';
+import Invoices from './pages/InvoicesLive';
+import Tenants from './pages/TenantsLive';
+import Reports from './pages/ReportsLive';
+import Settings from './pages/SettingsLive';
+import NewLease from './pages/NewLeaseLive';
 import PrintPreview from './pages/PrintPreview';
+import MaintenanceLive from './pages/MaintenanceLive';
+import PortalDashboard from './pages/Portal/PortalDashboard';
+import PortalInvoices from './pages/Portal/PortalInvoices';
+import ConfirmPayment from './pages/Portal/ConfirmPayment';
+import SetupPassword from './pages/Portal/SetupPassword';
+import SignupScreen from './pages/SignupScreen';
+import BillingPage from './pages/BillingPage';
+import LoginScreen from './pages/LoginScreen';
 
-const Sidebar = () => {
+// Components
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+
+// Services & Utils
+import { ApiError, api, onUnauthorized } from './services/api';
+import type { AppRole, AuthSession } from './types';
+import { LanguageProvider } from './utils/LanguageContext';
+import { CurrencyProvider } from './utils/CurrencyContext';
+import { ThemeProvider } from './utils/ThemeContext';
+
+const routeConfigs: Array<{
+  path: string;
+  icon?: string;
+  label?: string;
+  element: React.ReactElement;
+  roles: AppRole[];
+}> = [
+  { path: '/', icon: 'dashboard', label: 'Dashboard', element: <Dashboard />, roles: ['Admin', 'Manager', 'Billing'] },
+  { path: '/buildings', icon: 'domain', label: 'Properties', element: <Buildings />, roles: ['Admin', 'Manager'] },
+  { path: '/rooms', icon: 'grid_view', label: 'Rooms', element: <Rooms />, roles: ['Admin', 'Manager'] },
+  { path: '/tenants', icon: 'group', label: 'Tenants', element: <Tenants />, roles: ['Admin', 'Manager'] },
+  { path: '/new-lease', icon: 'key', label: 'New Lease', element: <NewLease />, roles: ['Admin', 'Manager'] },
+  { path: '/invoices', icon: 'receipt_long', label: 'Invoices', element: <Invoices />, roles: ['Admin', 'Manager', 'Billing'] },
+  { path: '/readings', icon: 'edit_note', label: 'Readings', element: <Readings />, roles: ['Admin', 'Manager', 'Billing'] },
+  { path: '/reports', icon: 'bar_chart', label: 'Reports', element: <Reports />, roles: ['Admin', 'Manager', 'Billing'] },
+  { path: '/maintenance', icon: 'plumbing', label: 'Maintenance', element: <MaintenanceLive />, roles: ['Admin', 'Manager'] },
+  { path: '/settings', icon: 'settings', label: 'Settings', element: <Settings />, roles: ['Admin', 'Manager'] },
+  { path: '/billing', icon: 'credit_card', label: 'Billing', element: <BillingPage />, roles: ['Admin', 'Manager'] },
+  { path: '/print', element: <PrintPreview />, roles: ['Admin', 'Manager', 'Billing'] },
+  
+  // Portal Routes
+  { path: '/portal', icon: 'dashboard', label: 'Dashboard', element: <PortalDashboard />, roles: ['Tenant'] },
+  { path: '/portal/invoices', icon: 'receipt_long', label: 'Invoices', element: <PortalInvoices />, roles: ['Tenant'] },
+  { path: '/portal/confirm-payment', icon: 'payments', label: 'Confirm Payment', element: <ConfirmPayment />, roles: ['Tenant'] },
+];
+
+const hasRole = (session: AuthSession, allowedRoles: AppRole[]) => allowedRoles.some((role) => session.roles.includes(role));
+
+const AccessDeniedScreen: React.FC = () => (
+  <div className="flex min-h-[60vh] items-center justify-center p-6">
+    <div className="max-w-md rounded-3xl border border-amber-200 bg-amber-50 px-8 py-10 text-center shadow-sm">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+        <span className="material-symbols-outlined">lock</span>
+      </div>
+      <h2 className="mt-5 text-2xl font-black text-gray-900">Access denied</h2>
+      <p className="mt-3 text-sm text-gray-600">Your account does not have permission to open this workspace.</p>
+    </div>
+  </div>
+);
+
+const AppShell: React.FC<{ session: AuthSession; onLogout: () => Promise<void> }> = ({ session, onLogout }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
   return (
-    <aside className="hidden w-64 flex-col bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 md:flex z-50">
-      <div className="flex h-16 shrink-0 items-center px-6 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-white">
-            <span className="material-symbols-outlined text-xl">apartment</span>
-          </div>
-          <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">RentalMgr</span>
+    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+      <Sidebar 
+        onLogout={onLogout} 
+        session={session} 
+        mobileMenuOpen={mobileMenuOpen} 
+        setMobileMenuOpen={setMobileMenuOpen} 
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        navItems={routeConfigs.filter(item => item.label && item.icon)}
+      />
+      <main className="flex flex-1 flex-col overflow-hidden relative min-w-0">
+        <Header onToggleMenu={() => setMobileMenuOpen(!mobileMenuOpen)} isSidebarCollapsed={sidebarCollapsed} />
+        <div className="flex-1 overflow-y-auto no-scrollbar">
+          <Routes>
+            {routeConfigs.map((route) => (
+              <Route
+                element={hasRole(session, route.roles) ? route.element : <AccessDeniedScreen />}
+                key={route.path}
+                path={route.path}
+              />
+            ))}
+          </Routes>
         </div>
-      </div>
-      <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 py-4">
-        {[
-          { to: '/', icon: 'dashboard', label: 'Dashboard' },
-          { to: '/buildings', icon: 'domain', label: 'Properties' },
-          { to: '/rooms', icon: 'grid_view', label: 'Rooms' },
-          { to: '/tenants', icon: 'group', label: 'Tenants' },
-          { to: '/invoices', icon: 'receipt_long', label: 'Invoices', badge: 4 },
-          { to: '/readings', icon: 'edit_note', label: 'Readings' },
-          { to: '/reports', icon: 'bar_chart', label: 'Reports' },
-        ].map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                isActive
-                  ? 'bg-primary/10 text-primary font-bold'
-                  : 'text-text-secondary hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
-              }`
-            }
-          >
-            <span className="material-symbols-outlined">{item.icon}</span>
-            {item.label}
-            {item.badge && (
-              <span className="ml-auto rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">
-                {item.badge}
-              </span>
-            )}
-          </NavLink>
-        ))}
-        <div className="my-2 h-px bg-gray-200 dark:bg-gray-700 mx-3"></div>
-        <NavLink
-          to="/settings"
-          className={({ isActive }) =>
-            `group flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-              isActive
-                ? 'bg-primary/10 text-primary font-bold'
-                : 'text-text-secondary hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
-            }`
-          }
-        >
-          <span className="material-symbols-outlined">settings</span>
-          Settings
-        </NavLink>
-      </div>
-      <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-          <img
-            alt="Profile"
-            className="h-10 w-10 rounded-full object-cover"
-            src="https://picsum.photos/seed/vibol/100/100"
-          />
-          <div className="flex flex-col overflow-hidden">
-            <span className="truncate text-sm font-medium text-gray-900 dark:text-white">Vibol Sok</span>
-            <span className="truncate text-xs text-gray-500 dark:text-gray-400">Manager • Online</span>
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-};
-
-const Header = () => {
-  const location = useLocation();
-  const getPageTitle = () => {
-    const path = location.pathname;
-    if (path === '/') return 'Dashboard';
-    if (path === '/buildings') return 'Properties';
-    if (path === '/rooms') return 'Room Inventory';
-    if (path === '/tenants') return 'Tenant Directory';
-    if (path === '/invoices') return 'Invoice Management';
-    if (path === '/readings') return 'Monthly Utility Readings';
-    if (path === '/reports') return 'Financial Reports';
-    if (path === '/settings') return 'Settings';
-    if (path === '/new-lease') return 'New Lease Agreement';
-    if (path === '/print') return 'Print Preview';
-    return 'RentalMgr';
-  };
-
-  return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 bg-surface-light dark:bg-surface-dark dark:border-gray-700 px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center gap-4">
-        <button className="md:hidden p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-          <span className="material-symbols-outlined">menu</span>
-        </button>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">{getPageTitle()}</h1>
-        <div className="hidden sm:flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-200 dark:border-green-800">
-          <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-          System Online
-        </div>
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="relative hidden sm:block">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-            <span className="material-symbols-outlined text-[20px]">search</span>
-          </span>
-          <input
-            className="block w-64 rounded-lg border-0 bg-gray-100 py-2 pl-10 pr-3 text-sm text-gray-900 focus:ring-2 focus:ring-primary dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 transition-all"
-            placeholder="Search..."
-            type="text"
-          />
-        </div>
-        <button className="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors">
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-900"></span>
-          <span className="material-symbols-outlined">notifications</span>
-        </button>
-        <NavLink
-          to="/invoices"
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900 shadow-sm transition-all active:scale-95"
-        >
-          <span className="material-symbols-outlined text-[20px]">add</span>
-          <span className="hidden sm:inline">New Invoice</span>
-        </NavLink>
-      </div>
-    </header>
+      </main>
+    </div>
   );
 };
 
 const App: React.FC = () => {
-  return (
-    <Router>
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar />
-        <main className="flex flex-1 flex-col overflow-hidden">
-          <Header />
-          <div className="flex-1 overflow-y-auto no-scrollbar">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/buildings" element={<Buildings />} />
-              <Route path="/rooms" element={<Rooms />} />
-              <Route path="/readings" element={<Readings />} />
-              <Route path="/invoices" element={<Invoices />} />
-              <Route path="/tenants" element={<Tenants />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/new-lease" element={<NewLease />} />
-              <Route path="/print" element={<PrintPreview />} />
-            </Routes>
-          </div>
-        </main>
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [bootstrapping, setBootstrapping] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onUnauthorized(() => {
+      setSession(null);
+    });
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSession = async () => {
+      try {
+        const currentSession = await api.getSession();
+        if (!cancelled) {
+          setSession(currentSession);
+        }
+      } catch (error) {
+        if (!cancelled && (!(error instanceof ApiError) || error.status !== 401)) {
+          setAuthError(error instanceof Error ? error.message : 'Unable to reach the backend.');
+        }
+      } finally {
+        if (!cancelled) {
+          setBootstrapping(false);
+        }
+      }
+    };
+
+    void loadSession();
+    return () => { cancelled = true; };
+  }, []);
+
+  const handleLogin = async (username: string, password: string, rememberMe: boolean) => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const nextSession = await api.login(username, password, rememberMe);
+      setSession(nextSession);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Unable to sign in.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await api.logout();
+    setSession(null);
+    setAuthError(null);
+  };
+
+  if (bootstrapping) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-4">
+          <span className="material-symbols-outlined animate-spin">progress_activity</span>
+          Restoring session...
+        </div>
       </div>
-    </Router>
+    );
+  }
+
+  const content = !session ? (
+    <Routes>
+      <Route path="/register" element={<SignupScreen onRegisterSuccess={(s) => setSession(s)} />} />
+      <Route path="/setup" element={<SetupPassword />} />
+      <Route path="*" element={<LoginScreen error={authError} loading={authLoading} onLogin={handleLogin} />} />
+    </Routes>
+  ) : (
+    <AppShell onLogout={handleLogout} session={session} />
+  );
+
+  return (
+    <ThemeProvider>
+      <LanguageProvider>
+        <CurrencyProvider isAuthenticated={!!session}>
+          <Router>
+            {content}
+          </Router>
+        </CurrencyProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 };
 
